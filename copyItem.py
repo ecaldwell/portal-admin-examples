@@ -83,7 +83,7 @@ itemId = '16318e12374a4090aebb9b93564d88cd'
 
 # Get a token.
 token = generateToken(username='<username>', password='<password>',
-                      portalUrl='https://webadaptor.domain.com/arcgis')
+                      portalUrl=portal)
 
 # Copy the item into the user's root folder.
-print copyItem(itemId, '<username>', portal, token)
+print copyItem(itemId, '<destination_username>', portal, token)

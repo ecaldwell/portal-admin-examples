@@ -95,11 +95,12 @@ class AGOPostError(Exception):
 
 
 # Sample usage
+portal = 'https://webadaptor.domain.com/arcgis'
 webmapId = 'e90cf123c1ee472495a4178f4b74ac1d'
-oldUrl = 'http://myserver.com/oldService/MapServer'
-newUrl = 'http://myserver.com/newService/MapServer'
+oldUrl = 'http://oldServer.com/serviceName/MapServer'
+newUrl = 'http://newServer.com/serviceName/MapServer'
 
-token = generateToken(username='username', password='password',
-                      portalUrl='https://webadaptor.domain.com/arcgis')
+token = generateToken(username='<username>', password='<password>',
+                      portalUrl=portal)
 updateWebmapService(webmapId, oldUrl, newUrl, token=token,
-                    portalUrl='https://webadaptor.domain.com/arcgis')
+                    portalUrl=portal)

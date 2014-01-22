@@ -44,14 +44,15 @@ def addUsersToGroups(users, groups, token, portalUrl):
 
 
 # Sample usage
+portal = 'https://webadaptor.domain.com/arcgis'
 users = ['john_doe', 'jane_doe']
 groups = ['d93aabd856f8459a8455a5bd434d4d4a',
           'f84c841a3dfc4341b1ff83281ea5025f']
 
-token = generateToken(username='myUsername', password='myPassword',
-                      portalUrl='https://webadaptor.domain.com/arcgis')
+token = generateToken(username='<username>', password='<password>',
+                      portalUrl=portal)
 
 results = addUsersToGroups(users=users, groups=groups, token=token,
-                           portalUrl='https://webadaptor.domain.com/arcgis')
+                           portalUrl=portal)
 
 print results

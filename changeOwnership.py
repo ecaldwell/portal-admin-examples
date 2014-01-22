@@ -56,7 +56,7 @@ portal = 'https://webadaptor.domain.com/arcgis'
 itemId = 'abcfc80258744e1a82a697dba53e0215'
 oldOwner = 'user1'
 newOwner = 'user2'
-token = generateToken(username='myUsername', password='myPassword',
+token = generateToken(username='<username>', password='<password>',
                       portalUrl=portal)
 
 # Get a list of the oldOwner's folders and any items in root.
