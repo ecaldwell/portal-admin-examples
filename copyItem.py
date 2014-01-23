@@ -78,12 +78,18 @@ def copyItem(itemId, destinationOwner, sourcePortal, sourceToken,
 
 
 # Sample usage.
-portal = 'https://webadaptor.domain.com/arcgis'
+portalA = 'https://webadaptor.domainA.com/arcgis'
+portalB = 'https://webadaptor.domainB.com/arcgis'
 itemId = '16318e12374a4090aebb9b93564d88cd'
 
-# Get a token.
-token = generateToken(username='<username>', password='<password>',
-                      portalUrl=portal)
+# Get a token for the source Portal for ArcGIS.
+tokenA = generateToken(username='<source_username>', password='<password>',
+                      portalUrl=portalA)
 
-# Copy the item into the user's root folder.
-print copyItem(itemId, '<destination_username>', portal, token)
+# Get a token for the destination Portal for ArcGIS.
+tokenB = generateToken(username='<dest_username>', password='<password>',
+                      portalUrl=portalB)
+
+# Copy the item into the destination user's root folder.
+print copyItem(itemId, '<destination_username>', portalA, tokenA,
+               '/', portalB, tokenB)
