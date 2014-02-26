@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+
+# Sample Usage:
+# python changeOwnership.py <config_file> <oldOwner> <newOwner>
+
+import sys
 import urllib
 import json
 
@@ -12,8 +17,17 @@ def generateToken(username, password, portalUrl):
                                    'f' : 'json'})
     response = urllib.urlopen(portalUrl + '/sharing/rest/generateToken?',
                               parameters).read()
-    token = json.loads(response)['token']
-    return token
+    try:
+        jsonResponse = json.loads(response)
+        if 'token' in jsonResponse:
+            return jsonResponse['token']
+        elif 'error' in jsonResponse:
+            print jsonResponse['error']['message']
+            for detail in jsonResponse['error']['details']:
+                print detail
+    except ValueError, e:
+        print 'An unspecified error occurred.'
+        print e
 
 def changeOwnership(itemId, newOwner, newFolder, token, portalUrl):
     '''
@@ -26,12 +40,24 @@ def changeOwnership(itemId, newOwner, newFolder, token, portalUrl):
                                'targetFoldername': newFolder,
                                'token' : token,
                                'f' : 'json'})
+    if not itemInfo['ownerFolder']:
+        itemInfo['ownerFolder'] = '/'
     print 'Transfering ownership of item: ' + itemId
     reqUrl = (portalUrl + '/sharing/rest/content/users/' +
               itemInfo['owner'] + '/' + itemInfo['ownerFolder'] +
               '/items/' + itemId + '/reassign?')
-    response = json.loads(urllib.urlopen(reqUrl, params).read())
-    return response
+    response = urllib.urlopen(reqUrl, params).read()
+    try:
+        jsonResponse = json.loads(response)
+        if 'success' in jsonResponse:
+            print 'OK'
+        elif 'error' in jsonResponse:
+            print 'ERROR'
+            for detail in jsonResponse['error']['details']:
+                print detail
+    except ValueError, e:
+        print 'An unspecified error occurred.'
+        print e
 
 def getUserContent(username, folder, token, portalUrl):
     '''Returns a list of all folders for the specified user.'''
@@ -50,33 +76,40 @@ def getItemInfo(itemId, token, portalUrl):
                                          itemId + '?' + params).read())
     return itemInfo
 
+# Run the script.
+if __name__ == '__main__':
+    # Load the config file
+    config = json.loads(open(sys.argv[1], 'r').read())
 
-# Sample usage
-portal = 'https://webadaptor.domain.com/arcgis'
-itemId = 'abcfc80258744e1a82a697dba53e0215'
-oldOwner = 'user1'
-newOwner = 'user2'
-token = generateToken(username='<username>', password='<password>',
-                      portalUrl=portal)
+    # Sample usage
+    portal = config['portal']
+    username = config['username']
+    password = config['password']
+    token = generateToken(username=username, password=password,
+                          portalUrl=portal)
 
-# Get a list of the oldOwner's folders and any items in root.
-userContent = getUserContent(oldOwner, '/', token,
-                             portalUrl=portal)
+    oldOwner = sys.argv[2]
+    newOwner = sys.argv[3]
 
-# Change ownership of a single item.
-# The item will be placed in the root folder of the new owner.
-changeOwnership(itemId, newOwner, '/', token=token, portalUrl=portal)
+    # Get a list of the oldOwner's folders and any items in root.
+    userContent = getUserContent(oldOwner, '/', token,
+                                 portalUrl=portal)
 
-## *** CAUTION ***
-## The following code will transfer ownership of ALL CONTENT
-## from oldOwner to newOwner.
-## Be sure you are absolutely sure you want to do this before proceeding.
-#for item in userContent['items']:
-    #changeOwnership(item['id'], newOwner, '/', token=token,
-                    #portalUrl=portal)
-#for folder in userContent['folders']:
-    #folderContent = getUserContent(oldOwner, folder['id'], token=token,
-                                   #portalUrl=portal)
-    #for item in folderContent['items']:
-        #changeOwnership(item['id'], newOwner, folder['title'], token=token,
-                        #portalUrl=portal)
+    # *** CAUTION ***
+    # The following code will transfer ownership of ALL CONTENT
+    # from oldOwner to newOwner.
+    # Be sure you are absolutely sure you want to do this before proceeding.
+    if not 'items' in userContent:
+        print oldOwner + ' doesn\'t have any content visible to this account.'
+        print 'Be sure you are signed in as admin.'
+    else:
+        for item in userContent['items']:
+            changeOwnership(item['id'], newOwner, '/', token=token,
+                            portalUrl=portal)
+        for folder in userContent['folders']:
+            folderContent = getUserContent(oldOwner, folder['id'],
+                                           token=token, portalUrl=portal)
+            for item in folderContent['items']:
+                changeOwnership(item['id'], newOwner, folder['title'],
+                                token=token, portalUrl=portal)
+
