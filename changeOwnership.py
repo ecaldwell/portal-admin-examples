@@ -1,11 +1,12 @@
 #!/usr/bin/env python
+# Requires Python 2.7+
 
 # Sample Usage:
 # python changeOwnership.py <config_file> <oldOwner> <newOwner>
 
-import sys
 import urllib
 import json
+import argparse
 
 def generateToken(username, password, portalUrl):
     '''Retrieves a token to be used with API requests.'''
@@ -42,7 +43,6 @@ def changeOwnership(itemId, newOwner, newFolder, token, portalUrl):
                                'f' : 'json'})
     if not itemInfo['ownerFolder']:
         itemInfo['ownerFolder'] = '/'
-    print 'Transfering ownership of item: ' + itemId
     reqUrl = (portalUrl + '/sharing/rest/content/users/' +
               itemInfo['owner'] + '/' + itemInfo['ownerFolder'] +
               '/items/' + itemId + '/reassign?')
@@ -50,9 +50,9 @@ def changeOwnership(itemId, newOwner, newFolder, token, portalUrl):
     try:
         jsonResponse = json.loads(response)
         if 'success' in jsonResponse:
-            print 'OK'
+            print 'Item ' + itemId + ' has been transferred.'
         elif 'error' in jsonResponse:
-            print 'ERROR'
+            print 'Error transferring item ' + itemId + '.'
             for detail in jsonResponse['error']['details']:
                 print detail
     except ValueError, e:
@@ -78,8 +78,18 @@ def getItemInfo(itemId, token, portalUrl):
 
 # Run the script.
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("config", help="location of the config file")
+    parser.add_argument("oldOwner", help="source account to migrate from")
+    parser.add_argument("newOwner", help="destination account to migrate to")
+    # Read the command line arguments.
+    args = parser.parse_args()
+    configFile = args.config
+    oldOwner = args.oldOwner
+    newOwner = args.newOwner
+
     # Load the config file
-    config = json.loads(open(sys.argv[1], 'r').read())
+    config = json.loads(open(configFile, 'r').read())
 
     # Sample usage
     portal = config['portal']
@@ -87,9 +97,6 @@ if __name__ == '__main__':
     password = config['password']
     token = generateToken(username=username, password=password,
                           portalUrl=portal)
-
-    oldOwner = sys.argv[2]
-    newOwner = sys.argv[3]
 
     # Get a list of the oldOwner's folders and any items in root.
     userContent = getUserContent(oldOwner, '/', token,
@@ -112,4 +119,7 @@ if __name__ == '__main__':
             for item in folderContent['items']:
                 changeOwnership(item['id'], newOwner, folder['title'],
                                 token=token, portalUrl=portal)
+        print 'Migration completed.'
+        print 'All items transferred from {0} to {1}'.format(oldOwner,
+                                                             newOwner)
 
