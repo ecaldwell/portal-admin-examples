@@ -1,6 +1,14 @@
 #!/usr/bin/env python
+# Requires Python 2.7+
+
+# Sample Usage:
+# python addUsersToGroups.py <config_file> <groupSearchString> <users>
+# python addUsersToGroups.py config.json Operations user1,user2,user3
+# <users> should be entered as a comma separated string
+
 import urllib
 import json
+import argparse
 
 def generateToken(username, password, portalUrl):
     '''Retrieves a token to be used with API requests.'''
@@ -12,8 +20,28 @@ def generateToken(username, password, portalUrl):
                                    'f' : 'json'})
     response = urllib.urlopen(portalUrl + '/sharing/rest/generateToken?',
                               parameters).read()
-    token = json.loads(response)['token']
-    return token
+    try:
+        jsonResponse = json.loads(response)
+        if 'token' in jsonResponse:
+            return jsonResponse['token']
+        elif 'error' in jsonResponse:
+            print jsonResponse['error']['message']
+            for detail in jsonResponse['error']['details']:
+                print detail
+    except ValueError, e:
+        print 'An unspecified error occurred.'
+        print e
+
+def groupSearch(query, token, portalUrl):
+    '''Search for groups matching the specified query.'''
+    # Example 1: query all groups owned by a user.
+    # 'owner:johndoe'
+    # Example 2: query groups with Operations in the name.
+    # 'Operations'
+    parameters = urllib.urlencode({'q': query, 'token': token, 'f': 'json'})
+    request = (portalUrl + '/sharing/rest/community/groups?' + parameters)
+    groups = json.loads(urllib.urlopen(request).read())
+    return groups['results']
 
 def addUsersToGroups(users, groups, token, portalUrl):
     '''
@@ -38,21 +66,48 @@ def addUsersToGroups(users, groups, token, portalUrl):
                                    parameters).read()
         # The response will only report back users that
         # were NOT successfully added.
-        toolSummary.append({group: json.loads(response)})
+        toolSummary.append({'id': group,
+                            'results': json.loads(response)})
 
     return toolSummary
 
+# Run the script.
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("config", help="location of the config file")
+    parser.add_argument("query", help="group search string")
+    parser.add_argument("users", help="a list of users")
+    # Read the command line arguments.
+    args = parser.parse_args()
+    configFile = args.config
+    query = args.query
+    users = (args.users).split(',') # Create a list from the input users.
 
-# Sample usage
-portal = 'https://webadaptor.domain.com/arcgis'
-users = ['john_doe', 'jane_doe']
-groups = ['d93aabd856f8459a8455a5bd434d4d4a',
-          'f84c841a3dfc4341b1ff83281ea5025f']
+    # Load the config file
+    config = json.loads(open(configFile, 'r').read())
 
-token = generateToken(username='<username>', password='<password>',
-                      portalUrl=portal)
+    # Sample usage
+    portal = config['portal']
+    username = config['username']
+    password = config['password']
+    token = generateToken(username=username, password=password,
+                          portalUrl=portal)
 
-results = addUsersToGroups(users=users, groups=groups, token=token,
+    # Get a list of the groups matching the query.
+    groupIDs = []
+    groups = groupSearch(query, token, portal)
+    for group in groups:
+        groupIDs.append(group['id'])
+
+results = addUsersToGroups(users=users, groups=groupIDs, token=token,
                            portalUrl=portal)
 
-print results
+for group in results:
+    if len(group['results']['notAdded']) > 0:
+        # Get the group name.
+        groupName = groupSearch('id:' + group['id'], token, portal)[0]['title']
+        print 'The following users were not added to ' + groupName
+        for user in group['results']['notAdded']:
+            print '    ' + user
+
+print 'Process complete.'
