@@ -187,13 +187,7 @@ if __name__ == '__main__':
                            query=query,
                            token=sourceToken)
 
-    # Sample usage
-    portal = 'https://webadaptor.domain.com/arcgis'
-    webmapId = 'e90cf123c1ee472495a4178f4b74ac1d'
-    oldUrl = 'http://oldServer.com/serviceName/MapServer'
-    newUrl = 'http://newServer.com/serviceName/MapServer'
-
-    token = generateToken(username='<username>', password='<password>',
-                          portalUrl=portal)
-    updateWebmapService(webmapId, oldUrl, newUrl, token=token,
-                        portalUrl=portal)
+    for item in content:
+        if item['type'] == 'Web Map':
+            updateWebmapService(item['id'], oldUrl, newUrl, token=token,
+                                portalUrl=portal)
