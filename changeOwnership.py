@@ -2,7 +2,8 @@
 # Requires Python 2.7+
 
 # Sample Usage:
-# python changeOwnership.py <config_file> <oldOwner> <newOwner>
+# python changeOwnership.py <portal> <username> <password>
+#                           <oldOwner> <newOwner>
 
 import urllib
 import json
@@ -79,22 +80,20 @@ def getItemInfo(itemId, token, portalUrl):
 # Run the script.
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("config", help="location of the config file")
+    parser.add_argument('portal', help='url of the portal')
+    parser.add_argument('username', help='username')
+    parser.add_argument('password', help='password')
     parser.add_argument("oldOwner", help="source account to migrate from")
     parser.add_argument("newOwner", help="destination account to migrate to")
     # Read the command line arguments.
     args = parser.parse_args()
-    configFile = args.config
+    portal = args.portal
+    username = args.username
+    password = args.password
     oldOwner = args.oldOwner
     newOwner = args.newOwner
 
-    # Load the config file
-    config = json.loads(open(configFile, 'r').read())
-
     # Sample usage
-    portal = config['portal']
-    username = config['username']
-    password = config['password']
     token = generateToken(username=username, password=password,
                           portalUrl=portal)
 
