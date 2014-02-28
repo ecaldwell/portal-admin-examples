@@ -38,6 +38,8 @@ def groupSearch(query, token, portalUrl):
     # 'owner:johndoe'
     # Example 2: query groups with Operations in the name.
     # 'Operations'
+    # Example 3: query all groups with public access.
+    # 'access:public'
     parameters = urllib.urlencode({'q': query, 'token': token, 'f': 'json'})
     request = (portalUrl + '/sharing/rest/community/groups?' + parameters)
     groups = json.loads(urllib.urlopen(request).read())
