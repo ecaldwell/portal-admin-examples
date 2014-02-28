@@ -2,8 +2,8 @@
 # Requires Python 2.7+
 
 # Sample Usage:
-# python addUsersToGroups.py <config_file> <groupSearchString> <users>
-# python addUsersToGroups.py config.json Operations user1,user2,user3
+# python addUsersToGroups.py <portal> <username> <password>
+#                            <groupSearchString> <users>
 # <users> should be entered as a comma separated string
 
 import urllib
@@ -76,22 +76,19 @@ def addUsersToGroups(users, groups, token, portalUrl):
 # Run the script.
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("config", help="location of the config file")
+    parser.add_argument('portal', help='url of the portal')
+    parser.add_argument('username', help='username')
+    parser.add_argument('password', help='password')
     parser.add_argument("query", help="group search string")
     parser.add_argument("users", help="a list of users")
     # Read the command line arguments.
     args = parser.parse_args()
-    configFile = args.config
+    portal = args.portal
+    username = args.username
+    password = args.password
     query = args.query
     users = (args.users).split(',') # Create a list from the input users.
 
-    # Load the config file
-    config = json.loads(open(configFile, 'r').read())
-
-    # Sample usage
-    portal = config['portal']
-    username = config['username']
-    password = config['password']
     token = generateToken(username=username, password=password,
                           portalUrl=portal)
 
