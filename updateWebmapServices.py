@@ -1,6 +1,13 @@
 #!/usr/bin/env python
+# Requires Python 2.7+
+
+# Sample Usage:
+# python updateWebmapServices.py <sourcePortal> <sourceAdmin> <sourcePassword>
+#                                <oldUrl> <newUrl>
+
 import urllib
 import json
+import argparse
 
 def generateToken(username, password, portalUrl):
     '''Retrieves a token to be used with API requests.'''
@@ -12,8 +19,70 @@ def generateToken(username, password, portalUrl):
                                    'f' : 'json'})
     response = urllib.urlopen(portalUrl + '/sharing/rest/generateToken?',
                               parameters).read()
-    token = json.loads(response)['token']
-    return token
+    try:
+        jsonResponse = json.loads(response)
+        if 'token' in jsonResponse:
+            return jsonResponse['token']
+        elif 'error' in jsonResponse:
+            print jsonResponse['error']['message']
+            for detail in jsonResponse['error']['details']:
+                print detail
+    except ValueError, e:
+        print 'An unspecified error occurred.'
+        print e
+
+def searchPortal(portal, query=None, totalResults=None, sortField='numviews',
+                 sortOrder='desc', token=None):
+    '''
+    Search the portal using the specified query and search parameters.
+    Optionally provide a token to return results visible to that user.
+    '''
+    # Default results are returned by highest
+    # number of views in descending order.
+    allResults = []
+    if not totalResults or totalResults > 100:
+        numResults = 100
+    else:
+        numResults = totalResults
+    results = __search__(portal, query, numResults, sortField, sortOrder, 0,
+                         token)
+
+    if not 'error' in results.keys():
+        if not totalResults:
+            totalResults = results['total'] # Return all of the results.
+        allResults.extend(results['results'])
+        while (results['nextStart'] > 0 and
+               results['nextStart'] < totalResults):
+            # Do some math to ensure it only
+            # returns the total results requested.
+            numResults = min(totalResults - results['nextStart'] + 1, 100)
+            results = __search__(portal=portal, query=query,
+                                 numResults=numResults, sortField=sortField,
+                                 sortOrder=sortOrder, token=token,
+                                 start=results['nextStart'])
+            allResults.extend(results['results'])
+        return allResults
+    else:
+        print results['error']['message']
+        return results
+
+def __search__(portal, query=None, numResults=100, sortField='numviews',
+               sortOrder='desc', start=0, token=None):
+    '''Retrieve a single page of search results.'''
+    params = {
+        'q': query,
+        'num': numResults,
+        'sortField': sortField,
+        'sortOrder': sortOrder,
+        'f': 'json',
+        'start': start
+    }
+    if token:
+        # Adding a token provides an authenticated search.
+        params['token'] = token
+    request = portal + '/sharing/rest/search?' + urllib.urlencode(params)
+    results = json.loads(urllib.urlopen(request).read())
+    return results
 
 def updateWebmapService(webmapId, oldUrl, newUrl, token, portalUrl):
     '''Replaces the URL for a specified map service in a web map.'''
@@ -93,14 +162,38 @@ class AGOPostError(Exception):
         self.webmap = webmap
         self.msg = msg
 
+# Run the script.
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('portal', help='url of the portal')
+    parser.add_argument('username', help='username')
+    parser.add_argument('password', help='password')
+    parser.add_argument('oldUrl', help='the URL to replace')
+    parser.add_argument('newUrl', help='the new URL')
+    # Read the command line arguments.
+    args = parser.parse_args()
+    portal = args.portal
+    username = args.username
+    password = args.password
+    oldUrl = args.oldUrl
+    newUrl = args.newUrl
 
-# Sample usage
-portal = 'https://webadaptor.domain.com/arcgis'
-webmapId = 'e90cf123c1ee472495a4178f4b74ac1d'
-oldUrl = 'http://oldServer.com/serviceName/MapServer'
-newUrl = 'http://newServer.com/serviceName/MapServer'
+    # Get a token for the source Portal for ArcGIS.
+    token = generateToken(username=username, password=password,
+                          portalUrl=portal)
 
-token = generateToken(username='<username>', password='<password>',
-                      portalUrl=portal)
-updateWebmapService(webmapId, oldUrl, newUrl, token=token,
-                    portalUrl=portal)
+    # Get a list of the content matching the query.
+    content = searchPortal(portal=sourcePortal,
+                           query=query,
+                           token=sourceToken)
+
+    # Sample usage
+    portal = 'https://webadaptor.domain.com/arcgis'
+    webmapId = 'e90cf123c1ee472495a4178f4b74ac1d'
+    oldUrl = 'http://oldServer.com/serviceName/MapServer'
+    newUrl = 'http://newServer.com/serviceName/MapServer'
+
+    token = generateToken(username='<username>', password='<password>',
+                          portalUrl=portal)
+    updateWebmapService(webmapId, oldUrl, newUrl, token=token,
+                        portalUrl=portal)
