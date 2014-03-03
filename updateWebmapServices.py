@@ -3,7 +3,7 @@
 
 # Sample Usage:
 # python updateWebmapServices.py <sourcePortal> <sourceAdmin> <sourcePassword>
-#                                <oldUrl> <newUrl>
+#                                <query> <oldUrl> <newUrl>
 
 import urllib
 import json
@@ -31,7 +31,7 @@ def generateToken(username, password, portalUrl):
         print 'An unspecified error occurred.'
         print e
 
-def searchPortal(portal, query=None, totalResults=None, sortField='numviews',
+def searchPortal(portalUrl, query=None, totalResults=None, sortField='numviews',
                  sortOrder='desc', token=None):
     '''
     Search the portal using the specified query and search parameters.
@@ -44,7 +44,7 @@ def searchPortal(portal, query=None, totalResults=None, sortField='numviews',
         numResults = 100
     else:
         numResults = totalResults
-    results = __search__(portal, query, numResults, sortField, sortOrder, 0,
+    results = __search__(portalUrl, query, numResults, sortField, sortOrder, 0,
                          token)
 
     if not 'error' in results.keys():
@@ -66,7 +66,7 @@ def searchPortal(portal, query=None, totalResults=None, sortField='numviews',
         print results['error']['message']
         return results
 
-def __search__(portal, query=None, numResults=100, sortField='numviews',
+def __search__(portalUrl, query=None, numResults=100, sortField='numviews',
                sortOrder='desc', start=0, token=None):
     '''Retrieve a single page of search results.'''
     params = {
@@ -168,6 +168,7 @@ if __name__ == '__main__':
     parser.add_argument('portal', help='url of the portal')
     parser.add_argument('username', help='username')
     parser.add_argument('password', help='password')
+    parser.add_argument('query', help='search string to find content')
     parser.add_argument('oldUrl', help='the URL to replace')
     parser.add_argument('newUrl', help='the new URL')
     # Read the command line arguments.
@@ -175,6 +176,7 @@ if __name__ == '__main__':
     portal = args.portal
     username = args.username
     password = args.password
+    query = args.query
     oldUrl = args.oldUrl
     newUrl = args.newUrl
 
@@ -183,9 +185,9 @@ if __name__ == '__main__':
                           portalUrl=portal)
 
     # Get a list of the content matching the query.
-    content = searchPortal(portal=sourcePortal,
+    content = searchPortal(portalUrl=portal,
                            query=query,
-                           token=sourceToken)
+                           token=token)
 
     for item in content:
         if item['type'] == 'Web Map':
