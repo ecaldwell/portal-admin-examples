@@ -193,3 +193,5 @@ if __name__ == '__main__':
         if item['type'] == 'Web Map':
             updateWebmapService(item['id'], oldUrl, newUrl, token=token,
                                 portalUrl=portal)
+
+print 'Update complete.'
