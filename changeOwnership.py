@@ -81,7 +81,8 @@ def getItemInfo(itemId, token, portalUrl):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('portal',
-                        help='https://portal.domain.com:7443/arcgis')
+                        help=('url of the Portal (e.g. '
+                              'https://portal.domain.com:7443/arcgis)'))
     parser.add_argument('username', help='username')
     parser.add_argument('password', help='password')
     parser.add_argument("oldOwner", help="source account to migrate from")
