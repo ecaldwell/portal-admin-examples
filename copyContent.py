@@ -156,11 +156,13 @@ def copyItem(itemId, destinationOwner, destinationFolder, sourcePortal,
 # Run the script.
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('sourcePortal', help='url of the source portal')
+    parser.add_argument('sourcePortal',
+                        help='https://portal.domain.com:7443/arcgis')
     parser.add_argument('sourceAdmin', help='source admin username')
     parser.add_argument('sourcePassword', help='source admin password')
     parser.add_argument("query", help='search string to find content')
-    parser.add_argument('destPortal', help='url of the destination portal')
+    parser.add_argument('destPortal',
+                        help='https://portal.domain.com:7443/arcgis')
     parser.add_argument('destAdmin', help='destination admin username')
     parser.add_argument('destPassword', help='destination admin password')
     parser.add_argument('owner', help='destination account to copy to')

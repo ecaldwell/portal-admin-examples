@@ -165,7 +165,8 @@ class AGOPostError(Exception):
 # Run the script.
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('portal', help='url of the portal')
+    parser.add_argument('portal',
+                        help='https://portal.domain.com:7443/arcgis')
     parser.add_argument('username', help='username')
     parser.add_argument('password', help='password')
     parser.add_argument('query', help='search string to find content')
