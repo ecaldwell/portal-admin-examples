@@ -80,7 +80,7 @@ if __name__ == '__main__':
     parser.add_argument('username', help='username')
     parser.add_argument('password', help='password')
     parser.add_argument("query", help="group search string")
-    parser.add_argument("users", help="a list of users")
+    parser.add_argument("users", help="a comma-separated string of users")
     # Read the command line arguments.
     args = parser.parse_args()
     portal = args.portal
@@ -98,15 +98,16 @@ if __name__ == '__main__':
     for group in groups:
         groupIDs.append(group['id'])
 
-results = addUsersToGroups(users=users, groups=groupIDs, token=token,
+    results = addUsersToGroups(users=users, groups=groupIDs, token=token,
                            portalUrl=portal)
 
-for group in results:
-    if len(group['results']['notAdded']) > 0:
-        # Get the group name.
-        groupName = groupSearch('id:' + group['id'], token, portal)[0]['title']
-        print 'The following users were not added to ' + groupName
-        for user in group['results']['notAdded']:
-            print '    ' + user
+    for group in results:
+        if len(group['results']['notAdded']) > 0:
+            # Get the group name.
+            groupName = groupSearch('id:' + group['id'], token,
+                                    portal)[0]['title']
+            print 'The following users were not added to ' + groupName
+            for user in group['results']['notAdded']:
+                print '    ' + user
 
-print 'Process complete.'
+    print 'Process complete.'
