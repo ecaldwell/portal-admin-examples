@@ -214,4 +214,4 @@ if __name__ == '__main__':
         except:
             'error copying ' + item['type'] + ': ' + item['title']
 
-print 'Copying complete.'
+    print 'Copying complete.'

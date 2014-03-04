@@ -194,4 +194,4 @@ if __name__ == '__main__':
             updateWebmapService(item['id'], oldUrl, newUrl, token=token,
                                 portalUrl=portal)
 
-print 'Update complete.'
+    print 'Update complete.'
