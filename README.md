@@ -1,5 +1,12 @@
 ## Use Cases
 
+#### [addOfflineBasemaps.py](addOfflineBasemaps.py)
+This example registers all of the new offline-ready basemaps [from this public group in ArcGIS Online](http://www.arcgis.com/home/group.html?owner=esri&title=Tiled%20Basemaps) and burns in the Portal admin's user credentials so that Portal users may use these maps without needing to authenticate in ArcGIS Online. These maps are required for disconnected editing support in Collector for ArcGIS.
+###### Sample Usage
+Add all offline-ready basemaps to the folder "Offline Basemaps" in the Portal admin's account and burn in the ArcGIS Online credentials.
+
+`python addOfflineBasemaps.py addOfflineBasemaps.py -a ago_admin -p pass.word -u https://webadaptor.domain.com/arcgis -o admin -s pass.word -f 'Offline Basemaps'`
+
 #### [addUsersToGroups.py](addUsersToGroups.py)
 This example adds members to specific groups within the organization. This is useful if you want new members to immediately have access to the organization's relevant content when they first sign into Portal for ArcGIS.
 ###### Sample Usage
