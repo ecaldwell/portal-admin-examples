@@ -178,10 +178,6 @@ def __decode_list__(lst):
 # Run the script.
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-a', '--agoAdmin', required=True,
-                        help='ArcGIS Online admin username')
-    parser.add_argument('-p', '--agoPassword', required=True,
-                        help='ArcGIS Online admin password')
     parser.add_argument('-u', '--portal', required=True,
                         help=('url of the Portal (e.g. '
                               'https://portal.domain.com:7443/arcgis)'))
@@ -189,8 +185,12 @@ if __name__ == '__main__':
                         help='Portal admin username')
     parser.add_argument('-s', '--portalPassword', required=True,
                         help='Portal admin password')
-    parser.add_argument('-f', '--folder',
+    parser.add_argument('-f', '--folder', required=False,
                         help='Optional destination folder')
+    parser.add_argument('-a', '--agoAdmin', required=False,
+                        help='ArcGIS Online admin username')
+    parser.add_argument('-p', '--agoPassword', required=False,
+                        help='ArcGIS Online admin password')
     # Read the command line arguments.
     args = parser.parse_args()
     agoAdmin = args.agoAdmin
@@ -201,7 +201,7 @@ if __name__ == '__main__':
     folderTitle = args.folder
 
     # Get a token for the Portal for ArcGIS.
-    print 'Getting token...'
+    print 'Getting token for ' + portal
     token = generateToken(username=portalAdmin, password=portalPassword,
                           portalUrl=portal)
 
