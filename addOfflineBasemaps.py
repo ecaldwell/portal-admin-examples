@@ -2,9 +2,9 @@
 # Requires Python 2.7+
 
 # Sample Usage:
-# python addOfflineBasemaps.py -a <agoUsername> -p <agoPassword>
-#                              -u <destinationPortal> -o <portalAdmin>
+# python addOfflineBasemaps.py -u <destinationPortal> -o <portalAdmin>
 #                              -s <portalPassword> -f <destFolder>
+#                              -a <agoUsername> -p <agoPassword>
 
 import urllib
 import json
