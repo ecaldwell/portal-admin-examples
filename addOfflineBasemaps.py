@@ -103,8 +103,8 @@ def getUserContent(username, portalUrl, token):
     parameters = urllib.urlencode({'token': token, 'f': 'json'})
     request = (portalUrl + '/sharing/rest/content/users/' + username +
                '?' + parameters)
-    content = json.loads(urllib.urlopen(request).read())
-    return content
+    content = urllib.urlopen(request).read()
+    return json.loads(content)
 
 def getItemDescription(itemId, portalUrl, token=''):
     '''Returns the description for a Portal for ArcGIS item.'''
@@ -112,7 +112,7 @@ def getItemDescription(itemId, portalUrl, token=''):
                                    'f' : 'json'})
     response = urllib.urlopen(portalUrl + "/sharing/rest/content/items/" +
                               itemId + "?" + parameters).read()
-    return response
+    return json.loads(unicode(response, 'utf-8'))
 
 def createFolder(username, title, portalUrl, token):
     '''Creates a new folder in a user's content.'''
@@ -135,19 +135,22 @@ def addServiceItem(username, folder, description, serviceUrl, portalUrl,
                   'overwrite': 'false',
                   'token' : token,
                   'f' : 'json'}
+
     if serviceUsername and servicePassword:
         # Store the credentials with the service.
         parameters.update({'serviceUsername': serviceUsername,
                            'servicePassword': servicePassword})
-    
+
     # Add the item's description (with safe values for unicode).
     parameters.update(descriptionJSON)
+
+    # Encode and post the item.
     postParameters = urllib.urlencode(parameters)
     response = urllib.urlopen(portalUrl + '/sharing/rest/content/users/' +
                               username + '/' + folder + '/addItem?',
                               postParameters).read()
-    return response
-    
+    return json.loads(response)
+
 # Helper functions for decoding the unicode values in the response json.
 def __decodeDict__(dct):
     newdict = {}
@@ -220,41 +223,52 @@ if __name__ == '__main__':
             newFolder = createFolder(portalAdmin, folderTitle, portal, token)
             folderId = newFolder['folder']['id']
         print 'Using folder ' + folderTitle + ' (id:' + folderId + ')'
-            
+
     # Get the ArcGIS Online group ID.
     query = 'owner:esri title:Tiled Basemaps'
      # Search for the public ArcGIS Online group (no token needed).
     sourceGroup = groupSearch(query, 'https://www.arcgis.com')[0]['id']
-    
+
     # Get the items in the ArcGIS Online group specified above.
     basemaps = searchPortal('https://www.arcgis.com', 'group:' + sourceGroup)
-    
+
     # Add the basemaps as new items in the Portal.
     for basemap in basemaps:
         # Get the item description.
         description = getItemDescription(basemap['id'],
                                          'https://www.arcgis.com')
-        descriptionJSON = json.loads(description)
-        serviceUrl = descriptionJSON['url']
-
+        serviceUrl = description['url']
         thumbUrl = ('https://www.arcgis.com' +
-                    '/sharing/rest/content/items/' + descriptionJSON['id'] +
-                    '/info/' + descriptionJSON['thumbnail'])
-        
+                    '/sharing/rest/content/items/' + description['id'] +
+                    '/info/' + description['thumbnail'])
+
+        newDescription = json.dumps(
+            {'title': description['title'],
+             'type': description['type'],
+             'snippet': description['snippet'],
+             'description': description['description'],
+             'licenseInfo': description['licenseInfo'],
+             'tags': ','.join(description['tags']),
+             'typeKeywords': ','.join(description['typeKeywords']),
+             'accessInformation': description['accessInformation']}
+        )
+
         try:
-            result = addServiceItem(portalAdmin, folderId, description,
+            result = addServiceItem(portalAdmin, folderId, newDescription,
                                     serviceUrl, portal, token, thumbUrl,
-                                    portalAdmin, portalPassword)
+                                    agoAdmin, agoPassword)
             if 'success' in result:
                 print 'Successfully added ' + basemap['title']
             elif 'error' in result:
-                print 'error copying ' + basemap['title']
+                print 'Error copying ' + basemap['title']
                 print result['error']['message']
                 for detail in result['error']['details']:
                     print detail
             else:
-                print 'error copying ' + basemap['title']
+                print 'Error copying ' + basemap['title']
+                print 'An unhandled error occurred.'
         except:
-            'error copying ' + basemap['title']
+            print 'Error copying ' + basemap['title']
+            print 'An unhandled exception occurred.'
 
     print 'Copying complete.'
