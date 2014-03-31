@@ -185,12 +185,12 @@ if __name__ == '__main__':
                         help='Portal admin username')
     parser.add_argument('-s', '--portalPassword', required=True,
                         help='Portal admin password')
+    parser.add_argument('-a', '--agoAdmin', required=True,
+                        help='ArcGIS Online admin username')
+    parser.add_argument('-p', '--agoPassword', required=True,
+                        help='ArcGIS Online admin password')
     parser.add_argument('-f', '--folder', required=False,
                         help='Optional destination folder')
-    parser.add_argument('-a', '--agoAdmin', required=False,
-                        help='ArcGIS Online admin username')
-    parser.add_argument('-p', '--agoPassword', required=False,
-                        help='ArcGIS Online admin password')
     # Read the command line arguments.
     args = parser.parse_args()
     agoAdmin = args.agoAdmin
