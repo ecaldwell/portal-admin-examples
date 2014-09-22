@@ -28,6 +28,13 @@ Copy all content owned by `johndoe` in Portal A to new user `janedoe` in Portal 
 
 `python copyContent.py https://portalA.domain.com:7443/arcgis admin password owner:johndoe https://portalB.domain.com:7443/arcgis admin password janedoe /`
 
+#### [migrateRoles.py](migrateRoles.py)
+This example changes the role of all users with Role A to Role B. This may be useful if you are setting up custom roles and wish to transfer all  users with the built-in Publisher role to the new custom role.
+###### Sample Usage
+Migrate all users in the Portal with Role A to Role B.
+
+`python migrateRoles.py -u https://portal.domain.com:7443/arcgis -o admin -s password`
+
 #### [updateWebmapServices.py](updateWebmapServices.py)
 This example updates the URL of a map service referenced in a web map in Portal for ArcGIS. This is useful if the map service URL has changed and you don't want users to require users to remove and re-add the service to the web map. There are many reasons a service URL may change. For example, the service may have been migrated to a new server, the name of the service was changed, or the service was moved to a different folder on the server.
 ###### Sample Usage
