@@ -2,7 +2,7 @@
 # Requires Python 2.7+
 
 # Sample Usage:
-# python migrateRoles.py <portal> -o <portalAdmin> -s <portalPassword>
+# python migrateRoles.py -u <portal> -o <portalAdmin> -s <portalPassword>
 
 import urllib
 import json
