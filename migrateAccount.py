@@ -2,7 +2,7 @@
 # Requires Python 2.7+
 
 # Sample Usage:
-# python migrateUser.py <portal> <username> <password> <oldOwner> <newOwner>
+# python migrateAccount.py <portal> <username> <password> <oldOwner> <newOwner>
 
 import urllib
 import json
