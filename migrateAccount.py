@@ -153,25 +153,8 @@ def updateUserRole(username, role, token, portalUrl):
     )
     return status
 
-# Run the script.
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('portal',
-                        help=('url of the Portal (e.g. '
-                              'https://portal.domain.com:7443/arcgis)'))
-    parser.add_argument('username', help='username')
-    parser.add_argument('password', help='password')
-    parser.add_argument('oldOwner', help='source account to migrate from')
-    parser.add_argument('newOwner', help='destination account to migrate to')
-    # Read the command line arguments.
-    args = parser.parse_args()
-    portal = args.portal[:-1] if args.portal[-1:] == '/' else args.portal
-    username = args.username
-    password = args.password
-    oldOwner = args.oldOwner
-    newOwner = args.newOwner
-
-    # Sample usage
+def migrateAccount(portal, username, password, oldOwner, newOwner):
+    # Get an admin token.
     token = generateToken(username=username, password=password,
                           portalUrl=portal)
 
@@ -186,12 +169,10 @@ if __name__ == '__main__':
         newInfo['firstName'] = userInfo['firstName']
     if userInfo.has_key('firstName'):
             newInfo['lastName'] = userInfo['lastName']
-    # Thumbnail migration not working
-    if userInfo.has_key('thumbnail'):
-        newInfo['thumbnail'] =  (portal + '/sharing/rest/community/users/' +
-                                 oldOwner + '/info/' + userInfo['thumbnail'])
-        print (portal + '/sharing/rest/community/users/' +
-               oldOwner + '/info/' + userInfo['thumbnail'])
+    ## Thumbnail migration not working
+    #if userInfo.has_key('thumbnail'):
+        #newInfo['thumbnail'] =  (portal + '/sharing/rest/community/users/' +
+                                 #oldOwner + '/info/' + userInfo['thumbnail'])
 
     # Check if the user is assigned a custom role.
     if 'roleId' in userInfo.keys():
@@ -234,4 +215,24 @@ if __name__ == '__main__':
         print 'All items transferred from {0} to {1}'.format(oldOwner,
                                                              newOwner)
 
-    print 'Migration from {0} to {1} complete.'.format(oldOwner, newOwner)
+    return 'Migration from {0} to {1} complete.'.format(oldOwner, newOwner)
+
+# Run the script.
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('portal',
+                        help=('url of the Portal (e.g. '
+                              'https://portal.domain.com:7443/arcgis)'))
+    parser.add_argument('username', help='username')
+    parser.add_argument('password', help='password')
+    parser.add_argument('oldOwner', help='source account to migrate from')
+    parser.add_argument('newOwner', help='destination account to migrate to')
+    # Read the command line arguments.
+    args = parser.parse_args()
+    portal = args.portal[:-1] if args.portal[-1:] == '/' else args.portal
+    username = args.username
+    password = args.password
+    oldOwner = args.oldOwner
+    newOwner = args.newOwner
+
+    migrateAccount(portal, username, password, oldOwner, newOwner)
