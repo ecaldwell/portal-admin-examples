@@ -180,7 +180,9 @@ def migrateAccount(portal, username, password, oldOwner, newOwner):
     else:
         newRole = userInfo['role']
 
+    print 'Updating {}\'s profile'.format(newOwner)
     updateUserInfo(newOwner, newInfo, token, portal)
+    print 'Updating {}\'s role'.format(newOwner)
     updateUserRole(newOwner, newRole, token, portal)
     ownedGroups = []
     memberGroups = []
