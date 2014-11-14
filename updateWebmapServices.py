@@ -56,7 +56,7 @@ def searchPortal(portalUrl, query=None, totalResults=None, sortField='numviews',
             # Do some math to ensure it only
             # returns the total results requested.
             numResults = min(totalResults - results['nextStart'] + 1, 100)
-            results = __search__(portal=portal, query=query,
+            results = __search__(portalUrl=portal, query=query,
                                  numResults=numResults, sortField=sortField,
                                  sortOrder=sortOrder, token=token,
                                  start=results['nextStart'])
