@@ -36,6 +36,20 @@ Copy all content owned by `johndoe` in Portal A to new user `janedoe` in Portal 
 
 `python copyContent.py https://portalA.domain.com:7443/arcgis admin password owner:johndoe https://portalB.domain.com:7443/arcgis admin password janedoe /`
 
+#### [createCsvOfGroupUsers.py](createCsvOfGroupUsers.py)
+This example creates a spreadsheet listing the groups and members that match the supplied group search string. The default filename is `group_details.csv` and will be created in the script directory. Optionally specify a filepath with the `-f` argument.
+###### Sample Usage
+Create a CSV of all `public` groups with the keyword `fire`.
+
+`python createCsvOfGroupUsers.py -u https://portalA.domain.com:7443/arcgis -o admin -s password -q 'fire access:public'`
+
+#### [createCsvOfUsers.py](createCsvOfUsers.py)
+This example creates a spreadsheet of all the users in a portal including their full name, username, email, and role. The default filename is `portal_users.csv` and will be created in the script directory. Optionally specify a filepath with the `-f` argument.
+###### Sample Usage
+Create a CSV of my portal's users.
+
+`python createCsvOfUsers.py -u https://portalA.domain.com:7443/arcgis -o admin -s password`
+
 #### [migrateAccount.py](migrateAccount.py)
 This example migrates an entire account from one user to another including their content, group memberships, and group ownerships. This may be useful if you are migrating users to enterprise logins and wish to transfer their existing account to their new enterprise account username.
 ###### Sample Usage
