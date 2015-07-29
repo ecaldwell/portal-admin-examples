@@ -64,6 +64,13 @@ Migrate all users in the Portal with Role A to Role B.
 
 `python migrateRoles.py -u https://portal.domain.com:7443/arcgis -o admin -s password`
 
+#### [registerServices.py](registerServices.py)
+This script registers all of the services from an ArcGIS for Server REST endpoint in the user's portal.
+###### Sample Usage
+Register the services at https://server.domain.com/arcgis/rest/services.
+
+`python registerServices.py -u https://portal.domain.com:7443/arcgis -o admin -s password -l https://server.domain.com/arcgis/rest/services`
+
 #### [updateWebmapServices.py](updateWebmapServices.py)
 This example updates the URL of a map service referenced in a web map in Portal for ArcGIS. This is useful if the map service URL has changed and you don't want users to require users to remove and re-add the service to the web map. There are many reasons a service URL may change. For example, the service may have been migrated to a new server, the name of the service was changed, or the service was moved to a different folder on the server.
 ###### Sample Usage
