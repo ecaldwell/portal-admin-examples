@@ -135,7 +135,10 @@ if __name__ == '__main__':
         thumbnail = '{}/info/thumbnail/{}'.format(serviceUrl, description['thumbnail']) if 'thumbnail' in description else None
         # Convert arrays to comma separated strings for posting.
         for k, v in description.iteritems():
-            if isinstance(v, list):
+            if k == 'extent':
+                newExtent = '{}, {}, {}, {}'.format(v[0][0], v[0][1], v[1][0], v[1][1])
+                description[k] = newExtent
+            elif isinstance(v, list):
                 description[k] = ', '.join([str(x) for x in v])
 
         result = registerService(username, userFolder, name, description, serviceUrl, portal, token, thumbnail)
