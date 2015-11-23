@@ -153,6 +153,20 @@ def updateUserRole(username, role, token, portalUrl):
     )
     return status
 
+def createFolder(username, newFolderName, token, portalUrl):
+    '''Creates a new folder in a User's content.'''
+    parameters = urllib.urlencode(
+        {'token': token,
+         'title': newFolderName,
+         'f': 'json'}
+        )
+    request = (portalUrl + '/sharing/rest/content/users/' + username +
+               '/createFolder?' + parameters)
+    status = json.loads(
+        urllib.urlopen(request, parameters).read()
+    )
+    return status
+
 def migrateAccount(portal, username, password, oldOwner, newOwner):
     # Get an admin token.
     token = generateToken(username=username, password=password,
@@ -160,7 +174,8 @@ def migrateAccount(portal, username, password, oldOwner, newOwner):
 
     # Get a list of the oldOwner's folders and any items in root.
     userContent = getUserContent(oldOwner, '/', token, portalUrl=portal)
-
+    newUserContent = getUserContent(newOwner, '/', token, portalUrl=portal)
+    
     userInfo = getUserInfo(oldOwner, token, portalUrl=portal)
     newInfo = {'fullName': userInfo['fullName'],
                'description': userInfo['description'],
@@ -200,14 +215,21 @@ def migrateAccount(portal, username, password, oldOwner, newOwner):
     # The following code will transfer ownership of ALL CONTENT
     # from oldOwner to newOwner.
     # Be sure you are absolutely sure you want to do this before proceeding.
-    if not 'items' in userContent:
-        print oldOwner + ' doesn\'t have any content visible to this account.'
+    if not ('items' in userContent or len(userContent['items']) == 0) and (len(userContent['folders']) == 0):
+        print oldOwner + ' doesn\'t have any content visible to this account or has no items.'
         print 'Be sure you are signed in as admin.'
     else:
         for item in userContent['items']:
             changeOwnership(item['id'], newOwner, '/', token=token,
                             portalUrl=portal)
         for folder in userContent['folders']:
+            if folder['title'] not in [folder['title'] for folder in newUserContent['folders']]:
+                print "trying to put item into new folder, but no folder exists, creating new folder..."
+                try:
+                    createFolder(newOwner, folder['title'], token, portal)
+                    print "created folder: " + folder['title']
+                except:
+                    print "failed to create folder: " + folder['title']
             folderContent = getUserContent(oldOwner, folder['id'],
                                            token=token, portalUrl=portal)
             for item in folderContent['items']:
