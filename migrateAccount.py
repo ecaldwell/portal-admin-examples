@@ -77,7 +77,7 @@ def addUsersToGroups(users, groups, token, portalUrl):
         response = urllib.urlopen(portalUrl +
                                   '/sharing/rest/community/groups/' +
                                   group + '/addUsers?',
-                                  'users=' + ','.join(users) + "&" +
+                                  'users=' + ','.join(users) + '&' +
                                   parameters).read()
         # The response will only report back users that
         # were NOT successfully added.
@@ -215,7 +215,7 @@ def migrateAccount(portal, username, password, oldOwner, newOwner, retainExactFo
     # The following code will transfer ownership of ALL CONTENT
     # from oldOwner to newOwner.
     # Be sure you are absolutely sure you want to do this before proceeding.
-    if retainExactFolderName == "True":
+    if retainExactFolderName == 'True':
         retainExactFolderName = True
     if not ('items' in userContent or len(userContent['items']) == 0) and (len(userContent['folders']) == 0):
         print oldOwner + ' doesn\'t have any content visible to this account or has no items.'
@@ -225,16 +225,16 @@ def migrateAccount(portal, username, password, oldOwner, newOwner, retainExactFo
             changeOwnership(item['id'], newOwner, '/', token=token,
                             portalUrl=portal)
         for folder in userContent['folders']:
-            if len(folder) == 0:
+            if len(folder['items']) == 0:
                 continue
             if retainExactFolderName is True:
                 if folder['title'] not in [newfolder['title'] for newfolder in newUserContent['folders']]:
-                    print "trying to put item into new folder, but no folder exists, creating new folder..."
+                    print 'trying to put item into new folder, but no folder exists, creating new folder...'
                     try:
                         createFolder(newOwner, folder['title'], token, portal)
-                        print "created folder: " + folder['title']
+                        print 'created folder: ' + folder['title']
                     except:
-                        print "failed to create folder: " + folder['title']
+                        print 'failed to create folder: ' + folder['title']
             folderContent = getUserContent(oldOwner, folder['id'],
                                            token=token, portalUrl=portal)
             for item in folderContent['items']:
