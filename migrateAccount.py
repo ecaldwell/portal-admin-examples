@@ -167,7 +167,7 @@ def createFolder(username, newFolderName, token, portalUrl):
     )
     return status
 
-def migrateAccount(portal, username, password, oldOwner, newOwner):
+def migrateAccount(portal, username, password, oldOwner, newOwner, retainExactFolderName=False):
     # Get an admin token.
     token = generateToken(username=username, password=password,
                           portalUrl=portal)
@@ -223,13 +223,16 @@ def migrateAccount(portal, username, password, oldOwner, newOwner):
             changeOwnership(item['id'], newOwner, '/', token=token,
                             portalUrl=portal)
         for folder in userContent['folders']:
-            if folder['title'] not in [folder['title'] for folder in newUserContent['folders']]:
-                print "trying to put item into new folder, but no folder exists, creating new folder..."
-                try:
-                    createFolder(newOwner, folder['title'], token, portal)
-                    print "created folder: " + folder['title']
-                except:
-                    print "failed to create folder: " + folder['title']
+            if len(folder) == 0:
+                continue
+            if retainExactFolderName is True:
+                if folder['title'] not in [folder['title'] for folder in newUserContent['folders']]:
+                    print "trying to put item into new folder, but no folder exists, creating new folder..."
+                    try:
+                        createFolder(newOwner, folder['title'], token, portal)
+                        print "created folder: " + folder['title']
+                    except:
+                        print "failed to create folder: " + folder['title']
             folderContent = getUserContent(oldOwner, folder['id'],
                                            token=token, portalUrl=portal)
             for item in folderContent['items']:
@@ -251,6 +254,8 @@ if __name__ == '__main__':
     parser.add_argument('password', help='password')
     parser.add_argument('oldOwner', help='source account to migrate from')
     parser.add_argument('newOwner', help='destination account to migrate to')
+    parser.add_argument('retainExactFolderName', help='True or False. True: exact folder name recreated. \
+                                                        False: username_foldername format followed')
     # Read the command line arguments.
     args = parser.parse_args()
     portal = args.portal[:-1] if args.portal[-1:] == '/' else args.portal
@@ -258,5 +263,6 @@ if __name__ == '__main__':
     password = args.password
     oldOwner = args.oldOwner
     newOwner = args.newOwner
+    retainExactFolderName = args.retainExactFolderName
 
     migrateAccount(portal, username, password, oldOwner, newOwner)
