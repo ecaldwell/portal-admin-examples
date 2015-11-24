@@ -2,7 +2,7 @@
 # Requires Python 2.7+
 
 # Sample Usage:
-# python migrateAccount.py <portal> <username> <password> <oldOwner> <newOwner>
+# python migrateAccount.py <portal> <username> <password> <oldOwner> <newOwner> <retainExactFolderName>
 
 import urllib
 import json
@@ -77,7 +77,7 @@ def addUsersToGroups(users, groups, token, portalUrl):
         response = urllib.urlopen(portalUrl +
                                   '/sharing/rest/community/groups/' +
                                   group + '/addUsers?',
-                                  'users=' + ','.join(users) + "&" +
+                                  'users=' + ','.join(users) + '&' +
                                   parameters).read()
         # The response will only report back users that
         # were NOT successfully added.
@@ -153,14 +153,29 @@ def updateUserRole(username, role, token, portalUrl):
     )
     return status
 
-def migrateAccount(portal, username, password, oldOwner, newOwner):
+def createFolder(username, newFolderName, token, portalUrl):
+    '''Creates a new folder in a User's content.'''
+    parameters = urllib.urlencode(
+        {'token': token,
+         'title': newFolderName,
+         'f': 'json'}
+        )
+    request = (portalUrl + '/sharing/rest/content/users/' + username +
+               '/createFolder?' + parameters)
+    status = json.loads(
+        urllib.urlopen(request, parameters).read()
+    )
+    return status
+
+def migrateAccount(portal, username, password, oldOwner, newOwner, retainExactFolderName):
     # Get an admin token.
     token = generateToken(username=username, password=password,
                           portalUrl=portal)
 
     # Get a list of the oldOwner's folders and any items in root.
     userContent = getUserContent(oldOwner, '/', token, portalUrl=portal)
-
+    newUserContent = getUserContent(newOwner, '/', token, portalUrl=portal)
+    
     userInfo = getUserInfo(oldOwner, token, portalUrl=portal)
     newInfo = {'fullName': userInfo['fullName'],
                'description': userInfo['description'],
@@ -200,14 +215,26 @@ def migrateAccount(portal, username, password, oldOwner, newOwner):
     # The following code will transfer ownership of ALL CONTENT
     # from oldOwner to newOwner.
     # Be sure you are absolutely sure you want to do this before proceeding.
-    if not 'items' in userContent:
-        print oldOwner + ' doesn\'t have any content visible to this account.'
+    if retainExactFolderName == 'True':
+        retainExactFolderName = True
+    if not ('items' in userContent or len(userContent['items']) == 0) and (len(userContent['folders']) == 0):
+        print oldOwner + ' doesn\'t have any content visible to this account or has no items.'
         print 'Be sure you are signed in as admin.'
     else:
         for item in userContent['items']:
             changeOwnership(item['id'], newOwner, '/', token=token,
                             portalUrl=portal)
         for folder in userContent['folders']:
+            if len(getUserContent(oldOwner, folder['id'], token, portal)['items']) == 0:
+                continue
+            if retainExactFolderName is True:
+                if folder['title'] not in [newfolder['title'] for newfolder in newUserContent['folders']]:
+                    print 'trying to put item into new folder, but no folder exists, creating new folder...'
+                    try:
+                        createFolder(newOwner, folder['title'], token, portal)
+                        print 'created folder: ' + folder['title']
+                    except:
+                        print 'failed to create folder: ' + folder['title']
             folderContent = getUserContent(oldOwner, folder['id'],
                                            token=token, portalUrl=portal)
             for item in folderContent['items']:
@@ -229,6 +256,8 @@ if __name__ == '__main__':
     parser.add_argument('password', help='password')
     parser.add_argument('oldOwner', help='source account to migrate from')
     parser.add_argument('newOwner', help='destination account to migrate to')
+    parser.add_argument('retainExactFolderName', help='True or False. True: exact folder name recreated. \
+                                                        False: username_foldername format followed')
     # Read the command line arguments.
     args = parser.parse_args()
     portal = args.portal[:-1] if args.portal[-1:] == '/' else args.portal
@@ -236,5 +265,6 @@ if __name__ == '__main__':
     password = args.password
     oldOwner = args.oldOwner
     newOwner = args.newOwner
+    retainExactFolderName = args.retainExactFolderName
 
-    migrateAccount(portal, username, password, oldOwner, newOwner)
+    migrateAccount(portal, username, password, oldOwner, newOwner, retainExactFolderName)
