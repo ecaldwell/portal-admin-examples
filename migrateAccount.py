@@ -226,7 +226,7 @@ def migrateAccount(portal, username, password, oldOwner, newOwner, retainExactFo
             if len(folder) == 0:
                 continue
             if retainExactFolderName is True:
-                if folder['title'] not in [folder['title'] for folder in newUserContent['folders']]:
+                if folder['title'] not in [newfolder['title'] for newfolder in newUserContent['folders']]:
                     print "trying to put item into new folder, but no folder exists, creating new folder..."
                     try:
                         createFolder(newOwner, folder['title'], token, portal)
