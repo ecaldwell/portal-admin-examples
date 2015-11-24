@@ -18,12 +18,14 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--username', help='admin username')
     parser.add_argument('-s', '--password', help='admin password')
     parser.add_argument('-c', '--csv', help='path to the csv')
+    parser.add_argument('-r', '--retain', help='true or false: retain exact folder names')
     # Read the command line arguments.
     args = parser.parse_args()
     portal = args.portal[:-1] if args.portal[-1:] == '/' else args.portal
     username = args.username
     password = args.password
     csvPath = args.csv
+    retainExactFolderNames = args.retain
 
 with open(csvPath, 'rU') as usersCsv:
     users = csv.reader(usersCsv, delimiter=',')
@@ -31,4 +33,4 @@ with open(csvPath, 'rU') as usersCsv:
     for user in users:
         print 'Migrating {} to {}.'.format(user[0], user[1])
         migrateAccount.migrateAccount(portal, username, password,
-                                      user[0], user[1])
+                                      user[0], user[1], retainExactFolderNames=False)
