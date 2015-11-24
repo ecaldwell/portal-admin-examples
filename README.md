@@ -20,7 +20,7 @@ This script automates the usage of [migrateAccount.py](migrateAccount.py) by rea
 ###### Sample Usage
 Migrate all content and group memberships and ownerships for the users in `UserList.csv`.
 
-`python batchMigrateAccounts.py -u https://www.arcgis.com -o admin -s adminPassword -c UserList.csv`
+`python batchMigrateAccounts.py -u https://www.arcgis.com -o admin -s adminPassword -c UserList.csv True`
 
 #### [changeOwnership.py](changeOwnership.py)
 This example transfers the ownership of all of the Portal for ArcGIS content owned by a member to another member. You may need to transfer ownership if you are attempting to remove a member (a member cannot be removed if they own content or groups).
@@ -39,9 +39,9 @@ Copy all content owned by `johndoe` in Portal A to new user `janedoe` in Portal 
 #### [migrateAccount.py](migrateAccount.py)
 This example migrates an entire account from one user to another including their content, group memberships, and group ownerships. This may be useful if you are migrating users to enterprise logins and wish to transfer their existing account to their new enterprise account username.
 ###### Sample Usage
-Migrate all content, group memberships, and group ownerships from account `john` to account `john_enterprise`.
+Migrate all content, group memberships, and group ownerships from account `john` to account `john_enterprise`, retaining exact folder names in the new account.
 
-`python migrateAccount.py https://portal.domain.com:7443/arcgis admin password john john_enterprise`
+`python migrateAccount.py https://portal.domain.com:7443/arcgis admin password john john_enterprise True`
 
 #### [migrateRoles.py](migrateRoles.py)
 This example changes the role of all users with Role A to Role B. This may be useful if you are setting up custom roles and wish to transfer all  users with the built-in Publisher role to the new custom role.
