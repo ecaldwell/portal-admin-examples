@@ -265,4 +265,4 @@ if __name__ == '__main__':
     newOwner = args.newOwner
     retainExactFolderName = args.retainExactFolderName
 
-    migrateAccount(portal, username, password, oldOwner, newOwner, retainExactFolderName=False)
+    migrateAccount(portal, username, password, oldOwner, newOwner, retainExactFolderName)
