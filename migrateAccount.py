@@ -2,7 +2,7 @@
 # Requires Python 2.7+
 
 # Sample Usage:
-# python migrateAccount.py <portal> <username> <password> <oldOwner> <newOwner>
+# python migrateAccount.py <portal> <username> <password> <oldOwner> <newOwner> <retainExactFolderName>
 
 import urllib
 import json
@@ -167,7 +167,7 @@ def createFolder(username, newFolderName, token, portalUrl):
     )
     return status
 
-def migrateAccount(portal, username, password, oldOwner, newOwner, retainExactFolderName=False):
+def migrateAccount(portal, username, password, oldOwner, newOwner, retainExactFolderName):
     # Get an admin token.
     token = generateToken(username=username, password=password,
                           portalUrl=portal)
@@ -215,6 +215,8 @@ def migrateAccount(portal, username, password, oldOwner, newOwner, retainExactFo
     # The following code will transfer ownership of ALL CONTENT
     # from oldOwner to newOwner.
     # Be sure you are absolutely sure you want to do this before proceeding.
+    if retainExactFolderName == "True":
+        retainExactFolderName = True
     if not ('items' in userContent or len(userContent['items']) == 0) and (len(userContent['folders']) == 0):
         print oldOwner + ' doesn\'t have any content visible to this account or has no items.'
         print 'Be sure you are signed in as admin.'
