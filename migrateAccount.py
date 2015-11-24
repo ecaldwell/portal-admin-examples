@@ -225,7 +225,7 @@ def migrateAccount(portal, username, password, oldOwner, newOwner, retainExactFo
             changeOwnership(item['id'], newOwner, '/', token=token,
                             portalUrl=portal)
         for folder in userContent['folders']:
-            if len(folder['items']) == 0:
+            if len(getUserContent(oldOwner, folder['id'], token, portal)['items']) == 0:
                 continue
             if retainExactFolderName is True:
                 if folder['title'] not in [newfolder['title'] for newfolder in newUserContent['folders']]:
