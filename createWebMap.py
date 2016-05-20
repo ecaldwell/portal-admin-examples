@@ -52,7 +52,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--portal', required=True, help=('url of the Portal'))
     parser.add_argument('-u', '--username', required=True, help='username')
     parser.add_argument('-s', '--password', required=True, help='password')
-    parser.add_argument('-a', '--services', required=True, help='array of services')
+    parser.add_argument('-a', '--services', required=True, help='comma separated string of services')
     # Read the command line arguments.
     args = parser.parse_args()
     portal = args.portal
