@@ -71,6 +71,13 @@ Register the services at https://server.domain.com/arcgis/rest/services.
 
 `python registerServices.py -u https://portal.domain.com:7443/arcgis -o admin -s password -l https://server.domain.com/arcgis/rest/services`
 
+#### [updateItemMetadata.py](updateItemMetadata.py)
+This example updates an item's description page using an xml file with the ArcGIS metadata format. These files can be generated in ArcGIS Desktop using the [Export Metadata tool](http://desktop.arcgis.com/en/arcmap/latest/tools/conversion-toolbox/export-metadata.htm) with the `FGDC2ESRI_ISO.xml` translator. This is useful when you have detailed metadata associated with a dataset that you would like carried over when you publish it to your portal.
+###### Sample Usage
+Update the item details for portal item `abc123` using the metadata in `new_metadata.xml`.
+
+`python updateItemMetadata.py -u https://www.arcgis.com -u admin -s password -i abc123 -p new_metadata.xml`
+
 #### [updateWebmapServices.py](updateWebmapServices.py)
 This example updates the URL of a map service referenced in a web map in Portal for ArcGIS. This is useful if the map service URL has changed and you don't want users to require users to remove and re-add the service to the web map. There are many reasons a service URL may change. For example, the service may have been migrated to a new server, the name of the service was changed, or the service was moved to a different folder on the server.
 ###### Sample Usage
