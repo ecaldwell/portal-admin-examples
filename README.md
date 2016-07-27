@@ -64,6 +64,13 @@ Migrate all users in the Portal with Role A to Role B.
 
 `python migrateRoles.py -u https://portal.domain.com:7443/arcgis -o admin -s password`
 
+#### [publishFiles.py](publishFiles.py)
+This example bulk publishes the files in a directory as services in you ArcGIS Online org or Portal. The status of each publishing job is written out to a spreadsheet called `results.csv` in the directory containing the files. This is useful when you have many spatial files (e.g. shapefiles) that you want to publish and share, such as in an ArcGIS Open Data site.
+###### Sample Usage
+Upload and publish all of the zipped up shapefiles in `C:\Shapefiles` as Hosted Services in ArcGIS Online.
+
+`python publishFiles.py -u https://www.arcgis.com -o admin -s password -p 'C:\Shapefiles`
+
 #### [registerServices.py](registerServices.py)
 This script registers all of the services from an ArcGIS for Server REST endpoint in the user's portal.
 ###### Sample Usage
